@@ -97,3 +97,23 @@ export const logout = asyncHandler(async (req, res) => {
         message: 'Logged Out'
     })
 })
+
+/**********************************************************
+ * @GETPROFILE
+ * @route http://localhost:5000/api/auth/getprofile
+ * @description User getprofile Controller for user data
+ * @returns User Object
+ **********************************************************/
+export const getProfile = asyncHandler( async(req, res) => {
+    const {user} = req
+
+    if(!user){
+        throw new CustomError("User not found",401)
+    }
+
+    res.status(200).json({
+        success: true,
+        user
+    })
+
+})
