@@ -13,9 +13,11 @@
   "dependencies": {
     "aws-sdk": "^2.1368.0",
     "bcryptjs": "^2.4.3",
+    "cloudinary": "^1.36.2",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
+    "formidable": "^2.1.1",
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.0.5"
   }

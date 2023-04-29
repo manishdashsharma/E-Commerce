@@ -10,7 +10,10 @@ const config = {
     S3_ACCESS_KEY : process.env.S3_ACCESS_KEY ,
     S3_SECRET_ACCESS_KEY : process.env.S3_SECRET_ACCESS_KEY,
     S3_BUCKET_NAME : process.env.S3_BUCKET_NAME,
-    S3_REGION : process.env.S3_REGION
+    S3_REGION : process.env.S3_REGION,
+    cloud_name : process.env.cloud_name,
+    api_key : process.env.api_key,
+    api_secret : process.env.api_secret
 }
 
 export default config
