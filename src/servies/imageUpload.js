@@ -1,4 +1,6 @@
 import s3 from "../config/s3.config.js"
+import cloudinary from "../config/cloudinary.config.js"
+
 
 export const s3FileUpload = async ({bucketName, key, body, contentType}) => {
     return await s3.upload({
