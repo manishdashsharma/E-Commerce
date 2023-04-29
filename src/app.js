@@ -13,7 +13,7 @@ app.use(cookieParser())
 app.use("/api/v1/", routes)
 
 app.get("/", (_req, res) => {
-    res.send("All servies are running fine , stop doubting on backend you frontend programmer !")
+    res.send("All services are running fine. Stop doubting the backend, you frontend programmer!")
 })
 
 app.all("*", (_req, res) => {
