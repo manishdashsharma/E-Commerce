@@ -4,3 +4,5 @@ class CustomError extends Error{
         this.code = code
     }
 }
+
+export default CustomError
