@@ -13,7 +13,12 @@ const config = {
     S3_REGION : process.env.S3_REGION,
     cloud_name : process.env.cloud_name,
     api_key : process.env.api_key,
-    api_secret : process.env.api_secret
+    api_secret : process.env.api_secret,
+    SMTP_MAIL_HOST: process.env.SMTP_MAIL_HOST,
+    SMTP_MAIL_PORT: process.env.SMTP_MAIL_PORT,
+    SMTP_MAIL_USERNAME: process.env.SMTP_MAIL_USERNAME,
+    SMTP_MAIL_PASSWORD: process.env.SMTP_MAIL_PASSWORD,
+    SMTP_SENDER_EMAIL: process.env.SMTP_SENDER_EMAIL,
 }
 
 export default config
