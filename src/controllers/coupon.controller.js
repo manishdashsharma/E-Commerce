@@ -2,7 +2,7 @@ import Coupon from '../models/coupon.schema.js'
 import asyncHandler from '../servies/asyncHandler.js'
 import CustomError from '../servies/CustomError.js'
 
-export const coupon = asyncHandler( async(req, res) => {
+export const createCoupon = asyncHandler( async(req, res) => {
     const { discount , code } = req.body
 
     if (!code || !discount){
