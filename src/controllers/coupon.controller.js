@@ -82,3 +82,34 @@ export const getAllCoupons = asyncHandler( async (req, res) => {
     })
     
 })
+
+export const getAllActiveCoupon = asyncHandler( async( req,res) => {
+    const coupons = await Coupon.find( { active: true} )
+
+    if(!coupons){
+        throw new CustomError("No active coupons",404)
+    }
+
+    res.status(200).json({
+        success: true,
+        coupons
+    })
+})
+
+export const disableCopuon = asyncHandler( async( req,res) =>{
+    const {id:couponId} = req.params
+    const isExists = await Coupon.findOne(couponId)
+
+    if(!isExists){
+        throw new CustomError("Coupon not found",404)
+    }
+
+    await Coupon.findByIdAndUpdate(couponId,{
+        active: false
+    })
+
+    res.status(200).json({
+        success: true,
+        message: "Token was disabled"
+    })
+})
