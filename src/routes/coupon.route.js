@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { createCoupon, deleteCoupon, updateCoupon, getAllCoupons , getAllActiveCoupon , disableCoupon } from "../controllers/coupon.controller.js"
+import { createCoupon, deleteCoupon, updateCoupon, getAllCoupons , getAllActiveCoupon , disableCopuon } from "../controllers/coupon.controller.js"
 import { isLoggedIn , authorize } from "../middlewares/auth.middleware.js"
 import AuthRoles from "../utils/authRole.js"
 
@@ -10,4 +10,6 @@ router.put("/:id", isLoggedIn , authorize(AuthRoles.ADMIN , AuthRoles.MODERATOR)
 router.delete("/:id", isLoggedIn, authorize(AuthRoles.ADMIN , AuthRoles.MODERATOR) , deleteCoupon)
 router.get("/", isLoggedIn, authorize(AuthRoles.ADMIN , AuthRoles.MODERATOR) , getAllCoupons)
 router.get("/getAllActiveCoupon", getAllActiveCoupon);
-router.put("/disableCoupon/:id", disableCoupon);
+router.put("/disableCopuon/:id", disableCopuon);
+
+export default router
