@@ -8,13 +8,6 @@ export const cookieOptions = {
     httpOnly: true
 }
 
-/******************************************************
- * @SIGNUP
- * @route http://localhost:5000/api/auth/signup
- * @description User signUp Controller for creating new user
- * @returns User Object
- ******************************************************/
-
 export const signUp = asyncHandler( async(res,req)=> {
     const { name, email, password } = req.body
 
@@ -44,13 +37,6 @@ export const signUp = asyncHandler( async(res,req)=> {
     })
 })
 
-/*********************************************************
- * @LOGIN
- * @route http://localhost:5000/api/auth/login
- * @description User Login Controller for signing in the user
- * @returns User Object
- *********************************************************/
-
 export const login = asyncHandler( async(res, req) => {
     const { email, password } = req.body
 
@@ -79,14 +65,6 @@ export const login = asyncHandler( async(res, req) => {
     }
 })
 
-/**********************************************************
- * @LOGOUT
- * @route http://localhost:5000/api/auth/logout
- * @description User Logout Controller for logging out the user
- * @description Removes token from cookies
- * @returns Success Message with "Logged Out"
- **********************************************************/
-
 export const logout = asyncHandler(async (req, res) => {
     res.cookie("token", null, {
         expires: new Date(Date.now()),
@@ -99,12 +77,6 @@ export const logout = asyncHandler(async (req, res) => {
     })
 })
 
-/**********************************************************
- * @GETPROFILE
- * @route http://localhost:5000/api/auth/getprofile
- * @description User getprofile Controller for user data
- * @returns User Object
- **********************************************************/
 export const getProfile = asyncHandler( async(req, res) => {
     const {user} = req
 
@@ -155,7 +127,6 @@ export const forgotPassword =  asyncHandler( async( req, res) =>{
     }
 })
 
-
 export const resetPassword = asyncHandler(async (req, res) => {
     const {token: resetToken} = req.params
     const {password, confirmPassword} = req.body
@@ -192,3 +163,6 @@ export const resetPassword = asyncHandler(async (req, res) => {
         user,
     })
 })
+
+
+

@@ -13,4 +13,4 @@ router.put("/:id", isLoggedIn, authorize(AuthRoles.ADMIN), updateCollection)
 router.delete("/:id", isLoggedIn, authorize(AuthRoles.ADMIN), deleteCollection)
 router.get("/",  getAllCollections)
 
-export default router;
+export default router
