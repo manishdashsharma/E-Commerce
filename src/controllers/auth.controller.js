@@ -8,8 +8,9 @@ export const cookieOptions = {
     httpOnly: true
 }
 
-export const signUp = asyncHandler( async(res,req)=> {
+export const signUp = asyncHandler( async(req,res)=> {
     const { name, email, password } = req.body
+    console.log(req.body)
 
     if (!name || !email || !password) {
         throw new CustomError("Please add all fields", 400)
@@ -37,33 +38,34 @@ export const signUp = asyncHandler( async(res,req)=> {
     })
 })
 
-export const login = asyncHandler( async(res, req) => {
-    const { email, password } = req.body
+export const login = asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
 
-    if(!email || !password){
-        throw new CustomError("Please provide email or password")
+    if (!email || !password) {
+        throw new CustomError("Please provide email or password");
     }
 
-    const user = User.findOne({email}).select('+password')
+    const user = await User.findOne({ email }).select('+password');
 
-    if(!user){
-        throw new CustomError("Invalid user",400)
+    if (!user) {
+        throw new CustomError("Invalid user", 400);
     }
 
-    const isPasswordMatched = await comparePassword(password)
+    const isPasswordMatched = await user.comparePassword(password);
 
     if (isPasswordMatched) {
-        const token = await user.getJWTtoken()
-        user.password = undefined
-        res.cookie("token", token, cookieOptions)
+        const token = await user.getJWTtoken();
+        user.password = undefined;
+        res.cookie("token", token, cookieOptions);
         res.status(200).json({
             success: true,
             token,
             user
-        })
-        throw new CustomError("Password doesnot match!",400)
+        });
+    } else {
+        throw new CustomError("Password does not match!", 400);
     }
-})
+});
 
 export const logout = asyncHandler(async (req, res) => {
     res.cookie("token", null, {
