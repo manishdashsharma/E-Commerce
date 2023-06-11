@@ -4,6 +4,7 @@ import Order from '../models/order.schema.js'
 import Product from '../models/product.schema.js'
 import Coupon from '../models/coupon.schema.js'
 import OrderStatus from '../utils/orderStatus.js'
+import verifyPayment from '../utils/verifyPayment.js'
 
 
 export const createOrder = asyncHandler(async (req, res) => {
@@ -40,20 +41,31 @@ export const createOrder = asyncHandler(async (req, res) => {
       discountAmount = coupon.discount;
     }
   
-    const orderCreated = {
+    const options = {
       amount: totalAmount - discountAmount,
+      currency: "INR",
       receipt: `receipt_${new Date().getTime()}`,
     };
-  
+    
+    const order = await razorpay.orders.create(options)
+
+    if (!order) {
+        throw new CustomError("Unable to generate order", 400)
+    }
+
     res.status(200).json({
       success: true,
       message: "Order created successfully",
-      orderCreated,
+      order
     });
   });
   
   export const placeOrder = asyncHandler(async (req, res) => {
-    const { transactionId, products, userId, address, phoneNumber, amount, coupon } = req.body
+    const { transactionId, products, userId, address, phoneNumber, amount, coupon ,razorpay_payment_id, razorpay_signature} = req.body
+
+    if(!razorpay_payment_id || !razorpay_signature) {
+        throw new CustomError("Provide the all fields",400)
+    }
 
     const order = await Order.create({
         transactionId, products, userId, address, phoneNumber, amount, coupon
@@ -75,10 +87,19 @@ export const createOrder = asyncHandler(async (req, res) => {
 
     await updateProducts;
 
+    const paymentData = {
+        transactionId,
+        razorpay_payment_id,
+        razorpay_signature,
+    };
+
+    await verifyPayment(paymentData)
+
     res.status(200).json({
         success: true,
         message: "Order placed successfully!",
-        order
+        order , 
+        payment : true
     })
 
 })
