@@ -1,6 +1,6 @@
 import Coupon from '../models/coupon.schema.js'
-import asyncHandler from '../servies/asyncHandler.js'
-import CustomError from '../servies/CustomError.js'
+import asyncHandler from '../services/asyncHandler.js'
+import CustomError from '../services/CustomError.js'
 
 export const createCoupon = asyncHandler( async(req, res) => {
     const { discount , code } = req.body
@@ -10,7 +10,7 @@ export const createCoupon = asyncHandler( async(req, res) => {
     }
 
     const isCouponExist = await Coupon.findOne({code})
-    if (!isCouponExist){
+    if (isCouponExist){
         throw new CustomError("All ready exist",400)
     }
 
@@ -26,15 +26,12 @@ export const createCoupon = asyncHandler( async(req, res) => {
     })
 })
 
-export const updateCoupon = asyncHandler( async(req, res) =>{
+export const updateCouponDiscount = asyncHandler( async(req, res) =>{
     const {id: couponId} = req.params
-    const {action} = req.body
-
+    const {discount} = req.body
+    console.log(discount)
     const coupon = await Coupon.findByIdAndUpdate(
-        couponId,
-        {
-            active : action
-        },
+        couponId,{ discount },
         {
             new: true,
             runValidators: true
@@ -98,7 +95,7 @@ export const getAllActiveCoupon = asyncHandler( async( req,res) => {
 
 export const disableCopuon = asyncHandler( async( req,res) =>{
     const {id:couponId} = req.params
-    const isExists = await Coupon.findOne(couponId)
+    const isExists = await Coupon.findById(couponId)
 
     if(!isExists){
         throw new CustomError("Coupon not found",404)

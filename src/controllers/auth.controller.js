@@ -1,7 +1,9 @@
 import User from '../models/user.schema.js'
-import asyncHandler from '../servies/asyncHandler.js'
-import CustomError from '../servies/CustomError.js'
+import asyncHandler from '../services/asyncHandler.js'
+import CustomError from '../services/CustomError.js'
 import mailHelper from '../utils/mailHelper.js'
+import crypto from "crypto"
+import AuthRoles from "../utils/authRole.js";
 
 export const cookieOptions = {
     expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
@@ -9,10 +11,9 @@ export const cookieOptions = {
 }
 
 export const signUp = asyncHandler( async(req,res)=> {
-    const { name, email, password } = req.body
-    console.log(req.body)
+    const { name, email, password, role, phoneNumber } = req.body
 
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !phoneNumber) {
         throw new CustomError("Please add all fields", 400)
     }
 
@@ -23,7 +24,7 @@ export const signUp = asyncHandler( async(req,res)=> {
     }
 
     const user = await User.create({
-        name,email,password
+        name,email,password,role,phoneNumber
     }) 
 
     const token = user.getJWTtoken();
@@ -93,6 +94,7 @@ export const getProfile = asyncHandler( async(req, res) => {
 
 })
 
+
 export const forgotPassword =  asyncHandler( async( req, res) =>{
     const { email } = req.body
 
@@ -114,11 +116,12 @@ export const forgotPassword =  asyncHandler( async( req, res) =>{
     const message = `Your password reset token is as follows \n\n ${resetUrl} \n\n if this was not requested by you, please ignore.`
 
     try {
-        await mailHelper({
+        const option ={
             email: user.email,
             subject: "Password reset mail",
-            message
-        })
+            text: message 
+        }
+        await mailHelper(option)
     } catch (error) {
         user.forgotPasswordToken = undefined
         user.forgotPasswordExpiry = undefined
@@ -168,3 +171,30 @@ export const resetPassword = asyncHandler(async (req, res) => {
 
 
 
+export const updateUserRole = asyncHandler( async (req,res)=> {
+    const { email } = req.body
+    console.log(email)
+    if (!email) {
+        throw new CustomError("Please enter email address",404)
+    }
+
+    const user = await User.findOneAndUpdate(
+        { email }, 
+        { role: AuthRoles.ADMIN },
+        {
+            new: true,
+            runValidators: true,
+        }
+
+    )
+    
+    if (!user) {
+        throw new CustomError("Email not found",404)
+    }
+
+    res.status(200).json({
+        success: true,
+        message: "User role has been updated",
+        user
+      });
+})
