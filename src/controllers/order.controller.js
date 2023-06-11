@@ -5,6 +5,7 @@ import Product from '../models/product.schema.js'
 import Coupon from '../models/coupon.schema.js'
 import OrderStatus from '../utils/orderStatus.js'
 import verifyPayment from '../utils/verifyPayment.js'
+import razorpay from './../config/razorpay.config.js';
 
 
 export const createOrder = asyncHandler(async (req, res) => {

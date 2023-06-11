@@ -1,6 +1,7 @@
 import razorpay from "razorpay";
 import crypto from "crypto";
 import config from "../config/index.js";
+import CustomError from "../services/CustomError.js";
 
 const verifyPayment = async (paymentData) => {
     const { transactionId, razorpay_payment_id, razorpay_signature } = paymentData;
