@@ -23,11 +23,11 @@ const productSchema = new mongoose.Schema({
         }
     ],
     stock: {
-        type: String,
+        type: Number,
         default: 0
     },
     sold: {
-        type: String,
+        type: Number,
         default: 0
     },
     collectionId: {
