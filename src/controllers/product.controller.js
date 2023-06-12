@@ -114,3 +114,21 @@ export const deleteProduct = asyncHandler(async (req, res) => {
     message: 'Product deleted successfully',
   });
 });
+
+export const addFavorite = asyncHandler( async( req, res) => {
+  const { id: collectionId } = req.params
+
+  const product = await Product.findById(collectionId)
+  
+  if(!product){
+    throw new CustomError("Product not found",404)
+  }
+
+  product.favorites = !product.favorites
+  await product.save()
+
+  res.status(200).json({
+    product
+  })
+
+})
