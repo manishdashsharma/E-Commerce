@@ -120,7 +120,7 @@ export const forgotPassword = asyncHandler(async (req, res) => {
       const option = {
         email: user.email,
         subject: "Password reset mail",
-        text: message,
+        message,
       };
       await mailHelper(option);
   
@@ -171,7 +171,8 @@ export const forgotPassword = asyncHandler(async (req, res) => {
   
     res.status(200).json({
       success: true,
-      user,
+      message: "Password updated successfully",
+      user
     });
   });
   
