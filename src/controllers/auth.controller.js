@@ -97,6 +97,7 @@ export const getProfile = asyncHandler( async(req, res) => {
 
 export const forgotPassword = asyncHandler(async (req, res) => {
     const { email } = req.body;
+    console.log(req.get("host"))
   
     if (!email) {
       throw new CustomError("Provide email id please", 400);
@@ -115,7 +116,7 @@ export const forgotPassword = asyncHandler(async (req, res) => {
     const resetUrl = `${req.protocol}://${req.get("host")}/api/v1/auth/password/reset/${resetToken}`;
   
     const message = `Your password reset token is as follows:\n\n${resetUrl}\n\nIf this request was not made by you, please ignore this email.`;
-  
+    
     try {
       const option = {
         email: user.email,
@@ -126,7 +127,8 @@ export const forgotPassword = asyncHandler(async (req, res) => {
   
       res.status(200).json({
         success: true,
-        message: "Password reset token sent to your email address.",
+        message: "Check your mail to your email address.",
+        resetUrl
       });
     } catch (error) {
       user.forgotPasswordToken = undefined;
@@ -165,7 +167,7 @@ export const forgotPassword = asyncHandler(async (req, res) => {
     user.forgotPasswordExpiry = undefined;
   
     await user.save();
-  
+    user.password = undefined;
     const token = user.getJWTtoken();
     res.cookie("token", token, cookieOptions);
   
