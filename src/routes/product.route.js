@@ -7,8 +7,8 @@ import AuthRoles from "../utils/authRole.js";
 const router = Router()
 
 router.post("/", isLoggedIn, authorize(AuthRoles.ADMIN), addProduct)
-router.get("/", isLoggedIn, authorize(AuthRoles.ADMIN), getProduct)
-router.get("/:id", isLoggedIn, authorize(AuthRoles.ADMIN), getProductById)
+router.get("/", isLoggedIn, getProduct)
+router.get("/:id", isLoggedIn, getProductById)
 router.delete("/delete-product/:id", isLoggedIn, authorize(AuthRoles.ADMIN), deleteProduct)
 router.get("/get-by-collection/:id", isLoggedIn, authorize(AuthRoles.ADMIN), getProductByCollectionId)
 router.put("/favorites/:id",isLoggedIn, addFavorite)
