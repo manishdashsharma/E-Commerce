@@ -134,15 +134,15 @@ export const addFavorite = asyncHandler( async( req, res) => {
 })
 
 export const searchProduct = asyncHandler(async (req, res) => {
-  const products = await Product.find();
-
-  let searchResult = [];
-  products.forEach((product) => {
-    searchResult.push({ _id: product._id, name: product.name });
-  });
+  const { name } = req.body
+  
+  if(!name) {
+    throw new CustomError("Name required to search",404)
+  }
+  const products = await Product.find({ name: { $regex: name, $options: "i" } });
 
   res.status(200).json({
     success: true,
-    product: searchResult,
+    products
   });
 });
