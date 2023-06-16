@@ -26,6 +26,16 @@ const userSchema = new mongoose.Schema({
         enum: Object.values(AuthRoles),
         default: AuthRoles.USER
     },
+    phoneNumber: {
+        type: String,
+        required: [true, "Please enter a valid phone number"]
+    },
+    address: [
+        {
+            type: String
+        }
+    ],
+    mobileOtp: String,
     forgotPasswordToken: String,
     forgotPasswordExpiry: Date
 }, {timestamps: true})

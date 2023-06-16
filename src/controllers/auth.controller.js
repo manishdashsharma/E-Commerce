@@ -4,40 +4,48 @@ import CustomError from '../services/CustomError.js'
 import mailHelper from '../utils/mailHelper.js'
 import crypto from "crypto"
 import AuthRoles from "../utils/authRole.js";
+import twilioSMS from '../utils/sendSMS.twilio.js'
+import generateOTP from '../utils/generateOTP.js';
+
 
 export const cookieOptions = {
     expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
     httpOnly: true
 }
 
-export const signUp = asyncHandler( async(req,res)=> {
-    const { name, email, password, role, phoneNumber } = req.body
+export const signUp = asyncHandler(async (req, res) => {
+  const { name, email, password, role, phoneNumber, address } = req.body;
 
-    if (!name || !email || !password || !phoneNumber) {
-        throw new CustomError("Please add all fields", 400)
-    }
+  if (!name || !email || !password || !phoneNumber) {
+      throw new CustomError("Please add all fields", 400);
+  }
 
-    const existingUser = await User.findOne({email})
+  const existingUser = await User.findOne({ email });
 
-    if (existingUser) {
-        throw new CustomError("User already exists", 400)
-    }
+  if (existingUser) {
+      throw new CustomError("User already exists", 400);
+  }
 
-    const user = await User.create({
-        name,email,password,role,phoneNumber
-    }) 
+  const user = await User.create({
+      name,
+      email,
+      password,
+      role,
+      phoneNumber,
+      address
+  });
 
-    const token = user.getJWTtoken();
-    user.password = undefined
+  const token = user.getJWTtoken();
+  user.password = undefined;
 
-    res.cookie("token",token,cookieOptions)
+  res.cookie("token", token, cookieOptions);
 
-    res.status(200).json({
-        success: true,
-        token,
-        user
-    })
-})
+  res.status(200).json({
+      success: true,
+      token,
+      user,
+  });
+});
 
 export const login = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
@@ -94,95 +102,91 @@ export const getProfile = asyncHandler( async(req, res) => {
 
 })
 
-
 export const forgotPassword = asyncHandler(async (req, res) => {
-    const { email } = req.body;
-    console.log(req.get("host"))
+  const { email } = req.body;
   
-    if (!email) {
-      throw new CustomError("Provide email id please", 400);
-    }
+  if (!email) {
+    throw new CustomError("Provide email id please", 400);
+  }
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new CustomError("User not found", 404);
+  }
+
+  const resetToken = user.generateForgotPasswordToken();
+
+  await user.save({ validateBeforeSave: false });
+
+  const resetUrl = `${req.protocol}://${req.get("host")}/api/v1/auth/password/reset/${resetToken}`;
+
+  const message = `Your password reset token is as follows:\n\n${resetUrl}\n\nIf this request was not made by you, please ignore this email.`;
   
-    const user = await User.findOne({ email });
-  
-    if (!user) {
-      throw new CustomError("User not found", 404);
-    }
-  
-    const resetToken = user.generateForgotPasswordToken();
-  
-    await user.save({ validateBeforeSave: false });
-  
-    const resetUrl = `${req.protocol}://${req.get("host")}/api/v1/auth/password/reset/${resetToken}`;
-  
-    const message = `Your password reset token is as follows:\n\n${resetUrl}\n\nIf this request was not made by you, please ignore this email.`;
-    
-    try {
-      const option = {
-        email: user.email,
-        subject: "Password reset mail",
-        message,
-      };
-      await mailHelper(option);
-  
-      res.status(200).json({
-        success: true,
-        message: "Check your mail to your email address.",
-        resetUrl,resetToken
-      });
-    } catch (error) {
-      user.forgotPasswordToken = undefined;
-      user.forgotPasswordExpiry = undefined;
-  
-      await user.save({ validateBeforeSave: false });
-  
-      throw new CustomError(error.message || "Email could not be sent", 500);
-    }
-  });
-  
-  export const resetPassword = asyncHandler(async (req, res) => {
-    const { token: resetToken } = req.params;
-    const { password, confirmPassword } = req.body;
-  
-    const resetPasswordToken = crypto
-      .createHash("sha256")
-      .update(resetToken)
-      .digest("hex");
-  
-    const user = await User.findOne({
-      forgotPasswordToken: resetPasswordToken,
-      forgotPasswordExpiry: { $gt: Date.now() },
-    });
-  
-    if (!user) {
-      throw new CustomError("Password reset token is invalid or expired", 400);
-    }
-  
-    if (password !== confirmPassword) {
-      throw new CustomError("Passwords do not match", 400);
-    }
-  
-    user.password = password;
-    user.forgotPasswordToken = undefined;
-    user.forgotPasswordExpiry = undefined;
-  
-    await user.save();
-    user.password = undefined;
-    const token = user.getJWTtoken();
-    res.cookie("token", token, cookieOptions);
-  
+  try {
+    const option = {
+      email: user.email,
+      subject: "Password reset mail",
+      message,
+    };
+    await mailHelper(option);
+
     res.status(200).json({
       success: true,
-      message: "Password updated successfully",
-      user
+      message: "Check your mail to your email address.",
+      resetUrl,resetToken
     });
-  });
-  
+  } catch (error) {
+    user.forgotPasswordToken = undefined;
+    user.forgotPasswordExpiry = undefined;
 
+    await user.save({ validateBeforeSave: false });
+
+    throw new CustomError(error.message || "Email could not be sent", 500);
+  }
+});
+  
+export const resetPassword = asyncHandler(async (req, res) => {
+  const { token: resetToken } = req.params;
+  const { password, confirmPassword } = req.body;
+
+  const resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  const user = await User.findOne({
+    forgotPasswordToken: resetPasswordToken,
+    forgotPasswordExpiry: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    throw new CustomError("Password reset token is invalid or expired", 400);
+  }
+
+  if (password !== confirmPassword) {
+    throw new CustomError("Passwords do not match", 400);
+  }
+
+  user.password = password;
+  user.forgotPasswordToken = undefined;
+  user.forgotPasswordExpiry = undefined;
+
+  await user.save();
+  user.password = undefined;
+  const token = user.getJWTtoken();
+  res.cookie("token", token, cookieOptions);
+
+  res.status(200).json({
+    success: true,
+    message: "Password updated successfully",
+    user
+  });
+});
 
 export const updateUserRole = asyncHandler( async (req,res)=> {
     const { email } = req.body
-    console.log(email)
+
     if (!email) {
         throw new CustomError("Please enter email address",404)
     }
@@ -194,7 +198,6 @@ export const updateUserRole = asyncHandler( async (req,res)=> {
             new: true,
             runValidators: true,
         }
-
     )
     
     if (!user) {
@@ -207,3 +210,96 @@ export const updateUserRole = asyncHandler( async (req,res)=> {
         user
       });
 })
+
+export const updateUserInfo = asyncHandler( async (req, res) => {
+  const { user : userinfo } = req
+  const { address } = req.body
+
+  if(!userinfo) {
+    new CustomError("User not found",404)
+  }
+
+  const user = await User.findByIdAndUpdate(
+    userinfo._id, { address } ,
+    {
+      new: true,
+      runValidators: true,
+    }
+  )
+
+  if (!user) {
+    new CustomError("User info could not update",400)
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "User info updated successfully",
+    user
+  })
+})
+
+export const sendOTP = asyncHandler(async (req, res) => {
+  const { phoneNumber } = req.body;
+
+  const generatedOTP = await generateOTP(8);
+  const option = {
+    to: phoneNumber,
+    body: `Here is your OTP: ${generatedOTP}`,
+  };
+
+  await twilioSMS(option);
+  
+  const user = await User.findOneAndUpdate(
+    { phoneNumber }, 
+    { mobileOtp: generatedOTP },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+  console.log(user);
+  res.status(200).json({
+    success: true,
+    message: 'OTP was sent successfully'
+  });
+});
+
+export const loginWithPhoneNumber = asyncHandler(async (req, res) => {
+  const { phoneNumber, otp } = req.body;
+
+  if (!phoneNumber || !otp) {
+    throw new CustomError("Provided phone number and OTP are required", 400);
+  }
+
+  const user = await User.findOne({ phoneNumber });
+
+  if (!user) {
+    new CustomError("No user found", 400);
+  }
+
+  if( user.length > 1){
+    new CustomError("Multiple users found with the same phone number , please use email login", 400);
+  }
+  
+  if (user.mobileOtp === otp) {
+    user.mobileOtp = undefined;
+    const token = await user.getJWTtoken();
+    res.cookie("token", token, cookieOptions);
+    await user.save();
+    res.status(200).json({
+      success: true,
+      message: 'OTP was verified successfully',
+      token,
+      user,
+    });
+  } else {
+    res.status(400).json({
+      success: false,
+      message: 'Invalid OTP',
+    });
+  }
+});
+
+
+
+

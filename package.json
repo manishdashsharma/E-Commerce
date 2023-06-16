@@ -23,6 +23,7 @@
     "mongoose": "^7.0.5",
     "nodemailer": "^6.9.1",
     "nodemon": "^2.0.22",
-    "razorpay": "^2.8.6"
+    "razorpay": "^2.8.6",
+    "twilio": "^4.12.0"
   }
 }
