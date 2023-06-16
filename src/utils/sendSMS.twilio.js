@@ -6,7 +6,7 @@ const twilioSMS = async (option) => {
     const client = twilio(config.ACCOUNT_SID, config.AUTH_TOKEN);
     await client.messages.create({
         body: option.body,
-        from: config.TWILIO_PHONE,
+        from: "+14066167224",
         to: option.to
     })
 }
