@@ -1,11 +1,12 @@
 import { Router } from 'express';
-import { addProduct, getProductByCollectionId, getProductById, getProduct, deleteProduct, addFavorite } from '../controllers/product.controller.js'
+import { addProduct, getProductByCollectionId, getProductById, getProduct, deleteProduct, addFavorite, searchProduct } from '../controllers/product.controller.js'
 import {  isLoggedIn, authorize } from "../middlewares/auth.middleware.js";
 import AuthRoles from "../utils/authRole.js";
 
 
 const router = Router()
 
+router.get("/search", searchProduct)
 router.post("/", isLoggedIn, authorize(AuthRoles.ADMIN), addProduct)
 router.get("/", isLoggedIn, getProduct)
 router.get("/:id", isLoggedIn, getProductById)
