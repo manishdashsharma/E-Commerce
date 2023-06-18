@@ -21,6 +21,7 @@ const config = {
     ACCOUNT_SID: process.env.ACCOUNT_SID,
     AUTH_TOKEN: process.env.AUTH_TOKEN,
     TWILIO_PHONE: process.env.TWILIO_PHONE_NUMBER,
+    profileImageFolder: process.env.profileImageFolder
 }
 
 export default config

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getProfile, login, logout, signUp, forgotPassword, resetPassword, updateUserRole, updateUserInfo, sendOTP, loginWithPhoneNumber } from "../controllers/auth.controller.js";
+import { getProfile, login, logout, signUp, forgotPassword, resetPassword, updateUserRole, updateUserAddress, sendOTP, loginWithPhoneNumber, updateProfileImage } from "../controllers/auth.controller.js";
 import {  isLoggedIn , authorize } from "../middlewares/auth.middleware.js";
 import AuthRole from "../utils/authRole.js";
 
@@ -13,8 +13,9 @@ router.get("/profile", isLoggedIn, getProfile)
 router.post("/password/forgot", forgotPassword)
 router.post("/password/reset/:token", resetPassword)
 router.put("/updateUserRole",isLoggedIn,updateUserRole)
-router.put("/update-userinfo",isLoggedIn,updateUserInfo)
+router.put("/update-address",isLoggedIn,updateUserAddress)
 router.post("/send-otp",sendOTP)
 router.post("/verify-otp-login",loginWithPhoneNumber)
+router.put("/update-profile-image",isLoggedIn, updateProfileImage)
 
 export default router;

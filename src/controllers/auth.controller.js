@@ -6,6 +6,9 @@ import crypto from "crypto"
 import AuthRoles from "../utils/authRole.js";
 import twilioSMS from '../utils/sendSMS.twilio.js'
 import generateOTP from '../utils/generateOTP.js';
+import formidable from 'formidable';
+import cloudinary from "../config/cloudinary.config.js";
+import config from './../config/index.js';
 
 
 export const cookieOptions = {
@@ -103,7 +106,7 @@ export const getProfile = asyncHandler( async(req, res) => {
 })
 
 export const forgotPassword = asyncHandler(async (req, res) => {
-  const { email } = req.body;
+  const { email , frontend_url } = req.body;
   
   if (!email) {
     throw new CustomError("Provide email id please", 400);
@@ -121,7 +124,10 @@ export const forgotPassword = asyncHandler(async (req, res) => {
 
   const resetUrl = `${req.protocol}://${req.get("host")}/api/v1/auth/password/reset/${resetToken}`;
 
-  const message = `Your password reset token is as follows:\n\n${resetUrl}\n\nIf this request was not made by you, please ignore this email.`;
+  const forgot_password_url = `${frontend_url}/${resetToken}`;
+
+  const message = `Your password reset token is as follows:\n\n${resetUrl}\n\n${forgot_password_url}\n\nIf this request was not made by you, please ignore this email.`;
+  
   
   try {
     const option = {
@@ -134,7 +140,9 @@ export const forgotPassword = asyncHandler(async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Check your mail to your email address.",
-      resetUrl,resetToken
+      resetUrl,
+      resetToken, 
+      forgot_password_url
     });
   } catch (error) {
     user.forgotPasswordToken = undefined;
@@ -211,7 +219,7 @@ export const updateUserRole = asyncHandler( async (req,res)=> {
       });
 })
 
-export const updateUserInfo = asyncHandler( async (req, res) => {
+export const updateUserAddress = asyncHandler( async (req, res) => {
   const { user : userinfo } = req
   const { address } = req.body
 
@@ -300,6 +308,27 @@ export const loginWithPhoneNumber = asyncHandler(async (req, res) => {
   }
 });
 
+export const updateProfileImage = asyncHandler(async (req, res) => {
+  const form = formidable({ multiples: true, keepExtensions: true });
 
+  form.parse(req, async function (error, fields, files) {
+    if (error) {
+      throw new CustomError(error.message || 'Something went wrong', 500);
+    }
 
+    const { user } = req;
 
+      const upload = await cloudinary.v2.uploader.upload(files.profileImage.filepath, {
+        folder: config.profileImageFolder
+      });
+
+      user.profileImage = upload.secure_url ;
+      await user.save();
+
+      res.status(200).json({
+        success: true,
+        message: "Profile image updated successfully",
+        user
+      })
+  })
+})

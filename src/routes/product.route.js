@@ -6,7 +6,7 @@ import AuthRoles from "../utils/authRole.js";
 
 const router = Router()
 
-router.get("/search", searchProduct)
+router.post("/search", searchProduct)
 router.get("/", getProduct)
 router.post("/", isLoggedIn, authorize(AuthRoles.ADMIN), addProduct)
 router.get("/:id", isLoggedIn, getProductById)

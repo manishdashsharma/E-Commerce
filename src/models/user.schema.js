@@ -35,6 +35,10 @@ const userSchema = new mongoose.Schema({
             type: String
         }
     ],
+    profileImage: {
+        type: String,
+        required: false
+    },
     mobileOtp: String,
     forgotPasswordToken: String,
     forgotPasswordExpiry: Date
